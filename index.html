@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Italiano — Study Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #fffdf8;
+    --surface2: #f0ebe0;
+    --border: #ddd5c4;
+    --accent: #b8892e;
+    --accent2: #3a8a62;
+    --accent3: #b0483a;
+    --accent4: #2e6a9a;
+    --accent5: #7a4aaa;
+    --text: #2a2418;
+    --text-muted: #2a1e0e;
+    --text-dim: #4a3e2e;
+    --italy-red: #ce2b37;
+    --italy-green: #009246;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 16px;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 16px; }
+
+  .flag {
+    display: flex;
+    height: 28px;
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .flag span { display: block; width: 10px; height: 100%; }
+  .flag .g { background: var(--italy-green); }
+  .flag .w { background: #fff; }
+  .flag .r { background: var(--italy-red); }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+  }
+
+  .header-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  .header-actions { display: flex; gap: 8px; }
+
+  /* GOAL BAR */
+  .goal-bar {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .goal-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  .goal-progress-wrap {
+    flex: 1;
+    background: var(--border);
+    border-radius: 999px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  .goal-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--italy-green), var(--accent));
+    border-radius: 999px;
+    transition: width 0.6s ease;
+  }
+
+  .goal-stats {
+    display: flex;
+    gap: 24px;
+    white-space: nowrap;
+  }
+
+  .goal-stat { text-align: center; }
+  .goal-stat .val {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .goal-stat .lbl { font-size: 13px; color: var(--text-muted); text-transform: uppercase; font-weight: 500; }
+
+  /* NAV TABS */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    background: var(--surface);
+  }
+
+  .tab {
+    padding: 12px 18px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: 'DM Sans', sans-serif;
+    -webkit-appearance: none;
+    touch-action: manipulation;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* LAYOUT */
+  .container { padding: 24px 28px; max-width: 1200px; }
+
+  /* PAGE */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--accent);
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* FORM ELEMENTS */
+  label { display: block; font-size: 13px; color: var(--text); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 13px;
+    border-radius: 5px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  textarea { resize: vertical; min-height: 70px; }
+
+  select option { background: var(--surface); }
+
+  .form-row { margin-bottom: 14px; }
+
+  .form-inline { display: grid; gap: 12px; }
+  .form-inline-2 { grid-template-columns: 1fr 1fr; }
+  .form-inline-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: 1px solid;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text-muted);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-danger {
+    background: transparent;
+    border-color: #c87a6e44;
+    color: var(--accent3);
+  }
+  .btn-danger:hover { background: #c87a6e22; }
+
+  .btn-sm { padding: 5px 10px; font-size: 14px; }
+
+  /* TIME MODE TOGGLE */
+  .time-mode {
+    display: flex;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    width: fit-content;
+  }
+
+  .time-mode-btn {
+    padding: 7px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .time-mode-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  /* COLOR DOT */
+  .color-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* CATEGORY CHIPS */
+  .category-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* SESSIONS LIST */
+  .sessions-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .session-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .session-bar {
+    width: 3px;
+    border-radius: 2px;
+    align-self: stretch;
+    flex-shrink: 0;
+    min-height: 40px;
+  }
+
+  .session-body { flex: 1; min-width: 0; }
+
+  .session-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .session-category { font-size: 14px; font-weight: 500; }
+  .session-meta { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+  .session-duration {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--accent);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .session-notes { font-size: 14px; color: var(--text-muted); margin-top: 4px; line-height: 1.6; }
+  .session-detail { font-size: 14px; color: var(--text-muted); margin-top: 3px; font-weight:500; }
+
+  /* CHART CONTAINERS */
+  .chart-wrap {
+    position: relative;
+    height: 260px;
+  }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-dim);
+  }
+
+  .empty .e-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty .e-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 16px; color: var(--text-muted); }
+  .empty .e-sub { font-size: 14px; margin-top: 6px; color: var(--text-muted); }
+
+  /* CATEGORIES MANAGEMENT */
+  .cat-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .cat-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cat-item-name { flex: 1; font-size: 13px; }
+  .cat-item-count { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+
+  /* COLOR PICKER ROW */
+  .color-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+  .color-swatch {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .color-swatch.selected { border-color: #fff; transform: scale(1.2); }
+
+  /* DATE PICKER */
+  .date-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .date-nav-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--text);
+    min-width: 160px;
+    text-align: center;
+  }
+
+  /* STATS GRID */
+  .stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-card .s-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--accent);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .stat-card .s-unit { font-size: 14px; color: var(--text-muted); font-weight: 600; }
+  .stat-card .s-lbl { font-size: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; font-weight: 600; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    width: 420px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+
+  /* FILTER ROW */
+  .filter-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  .filter-row .form-row { margin-bottom: 0; flex: 1; min-width: 120px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+  }
+
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+
+  /* PASSIVE TOGGLE */
+  .passive-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 14px;
+  }
+  .passive-toggle input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent3); cursor: pointer; flex-shrink:0; }
+  .passive-toggle-label { font-size: 13px; font-weight: 600; color: var(--text); }
+  .passive-toggle-sub { font-size: 14px; color: var(--text-muted); margin-top: 1px; }
+  .passive-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #f0e8d0; border: 1px solid #d4b870; color: #8a6020;
+    font-size: 13px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+    vertical-align: middle; margin-left: 6px;
+  }
+  .passive-badge-purple {
+    background: #ede8f5; border: 1px solid #b090d0; color: #6a3a9a;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    .stat-cards { grid-template-columns: 1fr 1fr; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .goal-stats { gap: 12px; }
+    .goal-stat .val { font-size: 16px; }
+  }
+
+  /* SECTION TITLE */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--text);
+    font-style: italic;
+  }
+
+  /* WEEKLY HEATMAP */
+  .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+
+  .week-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    cursor: default;
+  }
+
+  .week-cell .wc-day { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+  .week-cell .wc-hrs { color: var(--accent); font-size: 13px; font-weight: 700; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="flag">
+      <span class="g"></span><span class="w"></span><span class="r"></span>
+    </div>
+    <div>
+      <div class="header h1" style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#c8a96e;">Studio Italiano</div>
+      <div class="header-sub">Language Study Tracker</div>
+    </div>
+  </div>
+  <div class="header-actions" style="align-items:center;gap:10px">
+    <div id="syncStatus" style="font-size: 13px;color:var(--text-dim);text-align:right;line-height:1.4">
+      <div id="syncStatusLine">—</div>
+      <div id="unsavedDot" style="display:none;color:#c8a96e;font-weight:500">● unsaved changes</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="exportData()" id="exportBtn">Export Data</button>
+    <label class="btn btn-ghost btn-sm" style="cursor:pointer;-webkit-user-select:none">Import Data<input type="file" id="importFile" accept=".json" style="position:absolute;width:0;height:0;opacity:0" onchange="importData(event)"></label>
+  </div>
+</div>
+
+<!-- iCLOUD SYNC INSTRUCTIONS BANNER -->
+<div id="syncBanner" style="display:none;background:#fffdf8;border-bottom:1px solid #ddd5c4;padding:10px 28px;font-size: 14px;color:#8a8070;display:flex;align-items:center;justify-content:space-between;gap:16px">
+  <div>
+    <span style="color:#9a6f2e;font-weight:600">💡 iCloud sync tip: </span>
+    After exporting, move the <strong>.json file</strong> to your <strong>iCloud Drive</strong> folder.
+    On your other device, click <em>Import Data</em> and select that file.
+    Always export before switching devices.
+  </div>
+  <button onclick="dismissBanner()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;flex-shrink:0">✕</button>
+</div>
+
+<!-- GOAL BAR -->
+<div class="goal-bar">
+  <div class="goal-label">🎯 Fluency Goal</div>
+  <div class="goal-progress-wrap">
+    <div class="goal-progress-fill" id="goalFill" style="width:0%"></div>
+  </div>
+  <div class="goal-stats">
+    <div class="goal-stat">
+      <div class="val" id="goalHoursDone">0</div>
+      <div class="lbl">hrs done</div>
+    </div>
+    <div class="goal-stat">
+      <div class="val" id="goalHoursLeft">800</div>
+      <div class="lbl">hrs left</div>
+    </div>
+    <div class="goal-stat">
+      <div class="val" id="goalPct">0%</div>
+      <div class="lbl">complete</div>
+    </div>
+    <div class="goal-stat">
+      <div class="val" id="goalETA">—</div>
+      <div class="lbl">ETA (7d avg)</div>
+    </div>
+    <div class="goal-stat">
+      <div class="val" id="goalPassiveHrs">0</div>
+      <div class="lbl">passive hrs</div>
+    </div>
+    <div class="goal-stat" style="cursor:pointer" onclick="openGoalModal()" title="Change goal" role="button">
+      <div class="val" id="goalTarget">800</div>
+      <div class="lbl">goal hrs ✏️</div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showPage('log')">📝 Log Session</button>
+  <button class="tab" onclick="showPage('today')">📅 Today</button>
+  <button class="tab" onclick="showPage('history')">📚 History</button>
+  <button class="tab" onclick="showPage('charts')">📊 Charts</button>
+  <button class="tab" onclick="showPage('categories')">🏷 Categories</button>
+</div>
+
+<!-- ============================================================ LOG SESSION ============================================================ -->
+<div id="page-log" class="page active">
+  <div class="container">
+    <div class="grid-2">
+      <!-- Log Form -->
+      <div class="card">
+        <div class="card-title">Add a Study Session</div>
+
+        <div class="form-row">
+          <label>Category</label>
+          <select id="logCategory"></select>
+        </div>
+
+        <div class="form-row">
+          <label>Date</label>
+          <input type="date" id="logDate">
+        </div>
+
+        <div class="form-row">
+          <label>Time Entry Method</label>
+          <div class="time-mode">
+            <button class="time-mode-btn active" onclick="setTimeMode('duration')">Duration</button>
+            <button class="time-mode-btn" onclick="setTimeMode('range')">Start → End</button>
+          </div>
+        </div>
+
+        <div id="modeDuration">
+          <div class="form-row">
+            <label>Duration</label>
+            <div class="form-inline form-inline-2">
+              <div>
+                <input type="number" id="logMins" min="0" max="999" placeholder="Minutes" value="30">
+              </div>
+              <div>
+                <input type="number" id="logHrs" min="0" max="24" placeholder="Hours" value="0">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="modeRange" style="display:none">
+          <div class="form-inline form-inline-2 form-row">
+            <div>
+              <label>Start Time</label>
+              <input type="time" id="logStart">
+            </div>
+            <div>
+              <label>End Time</label>
+              <input type="time" id="logEnd">
+            </div>
+          </div>
+          <div id="rangeCalc" style="font-size:15px;color:var(--accent);margin-bottom:10px;"></div>
+        </div>
+
+        <div class="form-row">
+          <label>Activity Detail (pages, chapters, topics…)</label>
+          <input type="text" id="logDetail" placeholder="e.g. Nuovo Progetto 1 — pp. 34–40, Grammar Unit 3">
+        </div>
+
+        <div class="form-row">
+          <label>Notes</label>
+          <textarea id="logNotes" placeholder="Observations, vocabulary, what went well…"></textarea>
+        </div>
+
+        <label class="passive-toggle" onclick="togglePassive(event)">
+          <input type="checkbox" id="logPassive">
+          <div>
+            <div class="passive-toggle-label">📺 Passive activity</div>
+            <div class="passive-toggle-sub">Time is tracked but <strong>not counted</strong> toward your fluency goal</div>
+          </div>
+        </label>
+        <button class="btn btn-primary" style="width:100%" onclick="addSession()">✓ Save Session</button>
+      </div>
+
+      <!-- Today's Sessions -->
+      <div class="card">
+        <div class="section-header">
+          <div class="card-title" style="margin-bottom:0">Today's Sessions</div>
+          <div id="todayTotalBadge" style="font-size:15px;color:var(--accent)"></div>
+        </div>
+        <div id="logTodaySessions">
+          <div class="empty">
+            <div class="e-icon">🌙</div>
+            <div class="e-text">Nessuna sessione ancora</div>
+            <div class="e-sub">No sessions logged today</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ TODAY ============================================================ -->
+<div id="page-today" class="page">
+  <div class="container">
+    <div class="date-nav">
+      <button class="btn btn-ghost btn-sm" onclick="navDay(-1)">◀</button>
+      <div class="date-nav-label" id="todayNavLabel"></div>
+      <button class="btn btn-ghost btn-sm" onclick="navDay(1)">▶</button>
+      <button class="btn btn-ghost btn-sm" onclick="goToday()">Today</button>
+    </div>
+
+    <div class="stat-cards" id="todayStats"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Sessions</div>
+        <div id="todaySessionsList"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">By Category</div>
+        <div class="chart-wrap"><canvas id="todayPie"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ HISTORY ============================================================ -->
+<div id="page-history" class="page">
+  <div class="container">
+    <div class="filter-row">
+      <div class="form-row">
+        <label>Category</label>
+        <select id="filterCategory">
+          <option value="">All categories</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>From</label>
+        <input type="date" id="filterFrom">
+      </div>
+      <div class="form-row">
+        <label>To</label>
+        <input type="date" id="filterTo">
+      </div>
+      <div class="form-row">
+        <label>Search</label>
+        <input type="text" id="filterSearch" placeholder="notes, detail…">
+      </div>
+      <button class="btn btn-ghost btn-sm" style="align-self:flex-end" onclick="clearFilters()">Clear</button>
+    </div>
+
+    <div id="historyStats" class="stat-cards" style="grid-template-columns:repeat(3,1fr)"></div>
+
+    <div class="card">
+      <div id="historyList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ CHARTS ============================================================ -->
+<div id="page-charts" class="page">
+  <div class="container">
+
+    <!-- Controls bar -->
+    <div class="card" style="margin-bottom:16px;padding:14px 18px">
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px">
+        <div class="form-row" style="margin-bottom:0;min-width:160px">
+          <label>Period (bar &amp; cumulative)</label>
+          <select id="chartPeriod" onchange="renderCharts()">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="365">Last 12 months</option>
+            <option value="all">All time</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:2px">
+          <label style="margin-bottom:0">Display options</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--text)">
+            <input type="checkbox" id="showPassiveChart" onchange="renderCharts()" style="width:16px;height:16px;accent-color:#7a4aaa">
+            Include passive time in charts
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pie chart with its own date range -->
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px">
+        <div class="card-title" style="margin-bottom:0">Time by Category</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+          <div class="form-row" style="margin-bottom:0">
+            <label>From</label>
+            <input type="date" id="pieFrom" onchange="renderCharts()" style="padding:5px 8px;font-size: 14px">
+          </div>
+          <div class="form-row" style="margin-bottom:0">
+            <label>To</label>
+            <input type="date" id="pieTo" onchange="renderCharts()" style="padding:5px 8px;font-size: 14px">
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="clearPieDates()">All time</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center">
+        <div style="flex:1;min-width:220px;max-width:320px">
+          <div class="chart-wrap" style="height:260px"><canvas id="chartPie"></canvas></div>
+        </div>
+        <div id="pieLegendCustom" style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:7px"></div>
+      </div>
+      <div id="pieRangeLabel" style="font-size: 14px;color:var(--text-muted);margin-top:10px;text-align:center"></div>
+    </div>
+
+    <!-- Bar chart -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Daily Hours</div>
+      <div class="chart-wrap"><canvas id="chartBar"></canvas></div>
+    </div>
+
+    <!-- Cumulative -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Cumulative Hours toward Goal</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="chartCumulative"></canvas></div>
+    </div>
+
+    <!-- Heatmap -->
+    <div class="card">
+      <div class="card-title">Weekly Activity (last 7 days)</div>
+      <div class="week-grid" id="weekHeatmap"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ CATEGORIES ============================================================ -->
+<div id="page-categories" class="page">
+  <div class="container">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Add New Category</div>
+        <div class="form-row">
+          <label>Category Name</label>
+          <input type="text" id="newCatName" placeholder="e.g. Listening, Grammar, Conversation…">
+        </div>
+        <div class="form-row">
+          <label>Colour</label>
+          <div class="color-row" id="colorRow"></div>
+        </div>
+        <div class="form-row">
+          <label class="passive-toggle" onclick="event.preventDefault();document.getElementById('newCatPassive').checked=!document.getElementById('newCatPassive').checked" style="margin-bottom:0">
+            <input type="checkbox" id="newCatPassive">
+            <div>
+              <div class="passive-toggle-label">Passive category</div>
+              <div class="passive-toggle-sub">Time tracked but not counted toward fluency goal</div>
+            </div>
+          </label>
+        </div>
+        <button class="btn btn-primary" onclick="addCategory()">+ Add Category</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Your Categories</div>
+        <div class="cat-list" id="catList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ MODALS ============================================================ -->
+
+<!-- Goal modal -->
+<div class="modal-overlay" id="goalModal">
+  <div class="modal">
+    <div class="modal-title">Set Fluency Goal</div>
+    <div class="form-row">
+      <label>Target Hours</label>
+      <input type="number" id="goalInput" min="1" value="800">
+    </div>
+    <div style="font-size: 14px;color:var(--text-muted);margin-top:-8px;margin-bottom:14px;">
+      Research suggests ~600–800 hours for B2 fluency in Italian for English speakers.
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('goalModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGoal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirm modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <div class="modal-title">Delete Session?</div>
+    <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('deleteModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== DATA =====================
+const COLORS = ['#c8a96e','#7fb89a','#c87a6e','#6e9ec8','#a86ec8','#c8c26e','#6ec8b0','#c86e8a','#8ac86e','#6e7ec8'];
+
+const DEFAULT_CATS = [
+  { id: 'anki', name: 'Anki Cards', color: '#c8a96e' },
+  { id: 'reading', name: 'Reading', color: '#7fb89a' },
+  { id: 'writing', name: 'Writing', color: '#6e9ec8' },
+  { id: 'listening', name: 'Listening', color: '#a86ec8' },
+  { id: 'speaking', name: 'Speaking / Conversation', color: '#c87a6e' },
+  { id: 'grammar', name: 'Grammar', color: '#c8c26e' },
+  { id: 'textbook', name: 'Textbook Exercises', color: '#6ec8b0' },
+  { id: 'vocab', name: 'Vocabulary', color: '#c86e8a' },
+  { id: 'tv_film', name: 'TV / Film', color: '#7a4aaa', passive: true },
+  { id: 'podcast', name: 'Podcast', color: '#2e6a9a', passive: true },
+  { id: 'audiobook', name: 'Audiobook', color: '#3a8a62', passive: true },
+  { id: 'radio_music', name: 'Italian Radio / Music', color: '#b0483a', passive: true },
+];
+
+let state = {
+  sessions: [],
+  categories: [],
+  goal: 800,
+};
+
+let pendingDelete = null;
+let selectedColor = COLORS[0];
+let timeMode = 'duration';
+let todayNavDate = todayStr();
+let todayPieChart = null;
+let chartPie = null, chartBar = null, chartCumulative = null;
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function loadState() {
+  const raw = localStorage.getItem('studio_italiano_v2');
+  if (raw) {
+    try { state = JSON.parse(raw); } catch(e) {}
+  }
+  if (!state.categories || !state.categories.length) {
+    state.categories = DEFAULT_CATS.map(c => ({...c}));
+  }
+  if (!state.sessions) state.sessions = [];
+  if (!state.goal) state.goal = 800;
+}
+
+function saveState() {
+  localStorage.setItem('studio_italiano_v2', JSON.stringify(state));
+}
+
+// ===================== UTILS =====================
+function fmtMins(mins) {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+
+function fmtHours(mins) {
+  return (mins / 60).toFixed(1);
+}
+
+function getCat(id) {
+  return state.categories.find(c => c.id === id) || { name: id, color: '#888' };
+}
+
+function getSessionMins(s) {
+  return s.duration || 0;
+}
+
+function dateLabel(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+// ===================== GOAL =====================
+function updateGoalBar() {
+  const activeSessions = state.sessions.filter(s => !s.passive);
+  const passiveSessions = state.sessions.filter(s => s.passive);
+  const totalMins = activeSessions.reduce((a, s) => a + getSessionMins(s), 0);
+  const passiveMins = passiveSessions.reduce((a, s) => a + getSessionMins(s), 0);
+  const totalHrs = totalMins / 60;
+  const goal = state.goal;
+  const pct = Math.min(100, (totalHrs / goal) * 100);
+  const left = Math.max(0, goal - totalHrs);
+
+  document.getElementById('goalFill').style.width = pct.toFixed(1) + '%';
+  document.getElementById('goalHoursDone').textContent = totalHrs.toFixed(1);
+  document.getElementById('goalHoursLeft').textContent = left.toFixed(1);
+  document.getElementById('goalPct').textContent = pct.toFixed(1) + '%';
+  document.getElementById('goalTarget').textContent = goal;
+  document.getElementById('goalInput').value = goal;
+  document.getElementById('goalPassiveHrs').textContent = (passiveMins/60).toFixed(1);
+
+  // ETA based on 7-day average
+  const now = new Date();
+  const d7 = new Date(now - 7 * 86400000);
+  const d7str = d7.toISOString().slice(0, 10);
+  const recent = state.sessions.filter(s => s.date >= d7str && !s.passive);
+  const recentMins = recent.reduce((a, s) => a + getSessionMins(s), 0);
+  const dailyAvgHrs = (recentMins / 60) / 7;
+
+  if (dailyAvgHrs > 0.01 && left > 0) {
+    const daysLeft = left / dailyAvgHrs;
+    const eta = new Date(now.getTime() + daysLeft * 86400000);
+    document.getElementById('goalETA').textContent = eta.toLocaleDateString('en-AU', { month: 'short', year: 'numeric' });
+  } else {
+    document.getElementById('goalETA').textContent = left <= 0 ? '🎉' : '—';
+  }
+}
+
+function openGoalModal() {
+  document.getElementById('goalModal').classList.add('open');
+}
+
+function saveGoal() {
+  const v = parseInt(document.getElementById('goalInput').value);
+  if (v > 0) {
+    state.goal = v;
+    saveState();
+    updateGoalBar();
+    closeModal('goalModal');
+    showToast('Goal updated!');
+  }
+}
+
+// ===================== TIME MODE =====================
+function setTimeMode(mode) {
+  timeMode = mode;
+  document.querySelectorAll('.time-mode-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0) === (mode === 'duration'));
+  });
+  document.getElementById('modeDuration').style.display = mode === 'duration' ? '' : 'none';
+  document.getElementById('modeRange').style.display = mode === 'range' ? '' : 'none';
+}
+
+function calcRange() {
+  const s = document.getElementById('logStart').value;
+  const e = document.getElementById('logEnd').value;
+  if (s && e) {
+    const [sh, sm] = s.split(':').map(Number);
+    const [eh, em] = e.split(':').map(Number);
+    let mins = (eh * 60 + em) - (sh * 60 + sm);
+    if (mins < 0) mins += 1440;
+    document.getElementById('rangeCalc').textContent = mins > 0 ? `= ${fmtMins(mins)}` : '';
+    return mins;
+  }
+  return 0;
+}
+
+document.addEventListener('change', e => {
+  if (e.target.id === 'logStart' || e.target.id === 'logEnd') calcRange();
+});
+
+// ===================== ADD SESSION =====================
+function addSession() {
+  const cat = document.getElementById('logCategory').value;
+  const date = document.getElementById('logDate').value;
+  const detail = document.getElementById('logDetail').value.trim();
+  const notes = document.getElementById('logNotes').value.trim();
+
+  if (!cat || !date) { showToast('Please select a category and date.'); return; }
+
+  let duration = 0;
+  if (timeMode === 'duration') {
+    const h = parseInt(document.getElementById('logHrs').value) || 0;
+    const m = parseInt(document.getElementById('logMins').value) || 0;
+    duration = h * 60 + m;
+  } else {
+    duration = calcRange();
+  }
+
+  if (duration <= 0) { showToast('Please enter a duration > 0.'); return; }
+
+  const passive = document.getElementById('logPassive').checked;
+
+  const session = {
+    id: Date.now().toString(),
+    cat,
+    date,
+    duration,
+    detail,
+    notes,
+    passive,
+    startTime: timeMode === 'range' ? document.getElementById('logStart').value : '',
+    endTime: timeMode === 'range' ? document.getElementById('logEnd').value : '',
+    created: new Date().toISOString(),
+  };
+
+  state.sessions.push(session);
+  saveState();
+
+  // Reset form
+  document.getElementById('logDetail').value = '';
+  document.getElementById('logNotes').value = '';
+  document.getElementById('logMins').value = '30';
+  document.getElementById('logHrs').value = '0';
+  document.getElementById('logStart').value = '';
+  document.getElementById('logEnd').value = '';
+  document.getElementById('rangeCalc').textContent = '';
+
+  updateGoalBar();
+  renderLogToday();
+  showToast(`Saved — ${fmtMins(duration)} of ${getCat(cat).name}`);
+}
+
+// ===================== SESSION CARD =====================
+function sessionCard(s, showDelete = true) {
+  const cat = getCat(s.cat);
+  const timeInfo = s.startTime && s.endTime ? `${s.startTime} – ${s.endTime}  ·  ` : '';
+  return `
+    <div class="session-item">
+      <div class="session-bar" style="background:${cat.color}"></div>
+      <div class="session-body">
+        <div class="session-top">
+          <div>
+            <span class="session-category" style="color:${cat.color}">${cat.name}</span>${s.passive ? '<span class="passive-badge passive-badge-purple">📺 passive</span>' : ''}
+            <div class="session-meta">${timeInfo}${dateLabel(s.date)}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="session-duration">${fmtMins(s.duration)}</div>
+            ${showDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteSession('${s.id}')">✕</button>` : ''}
+          </div>
+        </div>
+        ${s.detail ? `<div class="session-detail">📖 ${s.detail}</div>` : ''}
+        ${s.notes ? `<div class="session-notes">${s.notes}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function deleteSession(id) {
+  pendingDelete = id;
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+function confirmDelete() {
+  if (pendingDelete) {
+    state.sessions = state.sessions.filter(s => s.id !== pendingDelete);
+    pendingDelete = null;
+    saveState();
+    updateGoalBar();
+    renderLogToday();
+    renderToday();
+    renderHistory();
+    if (document.getElementById('page-charts').classList.contains('active')) renderCharts();
+    closeModal('deleteModal');
+    showToast('Session deleted');
+  }
+}
+
+// ===================== LOG TAB - TODAY =====================
+function renderLogToday() {
+  const today = todayStr();
+  const sessions = state.sessions.filter(s => s.date === today).sort((a, b) => (b.created || '') > (a.created || '') ? 1 : -1);
+  const totalMins = sessions.reduce((a, s) => a + s.duration, 0);
+
+  const badge = document.getElementById('todayTotalBadge');
+  badge.textContent = sessions.length ? `Total: ${fmtMins(totalMins)}` : '';
+
+  const el = document.getElementById('logTodaySessions');
+  if (!sessions.length) {
+    el.innerHTML = `<div class="empty"><div class="e-icon">🌙</div><div class="e-text">Nessuna sessione ancora</div><div class="e-sub">No sessions logged today</div></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="sessions-list">${sessions.map(s => sessionCard(s)).join('')}</div>`;
+}
+
+// ===================== TODAY PAGE =====================
+function renderToday() {
+  const dayStr = todayNavDate;
+  document.getElementById('todayNavLabel').textContent = dateLabel(dayStr);
+
+  const sessions = state.sessions.filter(s => s.date === dayStr);
+  const totalMins = sessions.reduce((a, s) => a + s.duration, 0);
+  const uniqueCats = [...new Set(sessions.map(s => s.cat))].length;
+  const longest = sessions.length ? Math.max(...sessions.map(s => s.duration)) : 0;
+
+  document.getElementById('todayStats').innerHTML = `
+    <div class="stat-card"><div class="s-val">${fmtHours(totalMins)}</div><div class="s-unit">hrs</div><div class="s-lbl">Total Time</div></div>
+    <div class="stat-card"><div class="s-val">${sessions.length}</div><div class="s-unit"></div><div class="s-lbl">Sessions</div></div>
+    <div class="stat-card"><div class="s-val">${uniqueCats}</div><div class="s-unit"></div><div class="s-lbl">Categories</div></div>
+    <div class="stat-card"><div class="s-val">${fmtMins(longest)}</div><div class="s-unit"></div><div class="s-lbl">Longest</div></div>
+  `;
+
+  const listEl = document.getElementById('todaySessionsList');
+  if (!sessions.length) {
+    listEl.innerHTML = `<div class="empty"><div class="e-icon">📖</div><div class="e-text">Niente per questo giorno</div><div class="e-sub">No sessions on this day</div></div>`;
+  } else {
+    listEl.innerHTML = `<div class="sessions-list">${sessions.sort((a,b)=>a.created>b.created?1:-1).map(s => sessionCard(s)).join('')}</div>`;
+  }
+
+  // Pie
+  const bycat = {};
+  sessions.forEach(s => { bycat[s.cat] = (bycat[s.cat] || 0) + s.duration; });
+  const cats = Object.keys(bycat);
+
+  if (todayPieChart) todayPieChart.destroy();
+
+  if (cats.length) {
+    const ctx = document.getElementById('todayPie').getContext('2d');
+    todayPieChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: cats.map(c => getCat(c).name),
+        datasets: [{ data: cats.map(c => bycat[c]), backgroundColor: cats.map(c => getCat(c).color), borderWidth: 0 }]
+      },
+      options: {
+        plugins: {
+          legend: { labels: { color: '#2a1e0e', font: { size: 14 } } },
+          tooltip: { callbacks: { label: ctx => ` ${fmtMins(ctx.raw)}` } }
+        },
+        cutout: '60%',
+      }
+    });
+  } else {
+    const ctx = document.getElementById('todayPie').getContext('2d');
+    if (todayPieChart) todayPieChart.destroy();
+    ctx.clearRect(0, 0, 999, 999);
+  }
+}
+
+function navDay(d) {
+  const date = new Date(todayNavDate + 'T12:00:00');
+  date.setDate(date.getDate() + d);
+  todayNavDate = date.toISOString().slice(0, 10);
+  renderToday();
+}
+
+function goToday() {
+  todayNavDate = todayStr();
+  renderToday();
+}
+
+// ===================== HISTORY =====================
+function renderHistory() {
+  const filterCat = document.getElementById('filterCategory').value;
+  const filterFrom = document.getElementById('filterFrom').value;
+  const filterTo = document.getElementById('filterTo').value;
+  const filterSearch = document.getElementById('filterSearch').value.toLowerCase();
+
+  let sessions = [...state.sessions];
+  if (filterCat) sessions = sessions.filter(s => s.cat === filterCat);
+  if (filterFrom) sessions = sessions.filter(s => s.date >= filterFrom);
+  if (filterTo) sessions = sessions.filter(s => s.date <= filterTo);
+  if (filterSearch) sessions = sessions.filter(s => (s.notes + s.detail).toLowerCase().includes(filterSearch));
+
+  sessions.sort((a, b) => b.date > a.date ? 1 : b.date < a.date ? -1 : b.created > a.created ? 1 : -1);
+
+  const totalMins = sessions.reduce((a, s) => a + s.duration, 0);
+  const days = [...new Set(sessions.map(s => s.date))].length;
+
+  document.getElementById('historyStats').innerHTML = `
+    <div class="stat-card"><div class="s-val">${fmtHours(totalMins)}</div><div class="s-unit">hrs</div><div class="s-lbl">Total (filtered)</div></div>
+    <div class="stat-card"><div class="s-val">${sessions.length}</div><div class="s-unit"></div><div class="s-lbl">Sessions</div></div>
+    <div class="stat-card"><div class="s-val">${days}</div><div class="s-unit"></div><div class="s-lbl">Days Active</div></div>
+  `;
+
+  const el = document.getElementById('historyList');
+  if (!sessions.length) {
+    el.innerHTML = `<div class="empty"><div class="e-icon">🔍</div><div class="e-text">Nessun risultato</div><div class="e-sub">No sessions found</div></div>`;
+    return;
+  }
+
+  // Group by date
+  const grouped = {};
+  sessions.forEach(s => { if (!grouped[s.date]) grouped[s.date] = []; grouped[s.date].push(s); });
+  const dates = Object.keys(grouped).sort().reverse();
+
+  el.innerHTML = dates.map(d => {
+    const dayMins = grouped[d].reduce((a, s) => a + s.duration, 0);
+    return `
+      <div style="margin-bottom:16px">
+        <div style="font-size: 14px;color:var(--text-muted);margin-bottom:8px;display:flex;justify-content:space-between">
+          <span>${dateLabel(d)}</span><span style="color:var(--accent)">${fmtMins(dayMins)}</span>
+        </div>
+        <div class="sessions-list">${grouped[d].map(s => sessionCard(s)).join('')}</div>
+      </div>
+    `;
+  }).join('<hr class="divider">');
+}
+
+function clearFilters() {
+  document.getElementById('filterCategory').value = '';
+  document.getElementById('filterFrom').value = '';
+  document.getElementById('filterTo').value = '';
+  document.getElementById('filterSearch').value = '';
+  renderHistory();
+}
+
+// ===================== CHARTS =====================
+function getFilteredSessions(days) {
+  if (days === 'all') return state.sessions;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - parseInt(days));
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  return state.sessions.filter(s => s.date >= cutoffStr);
+}
+
+function renderCharts() {
+  const period = document.getElementById('chartPeriod').value;
+  const showPassive = document.getElementById('showPassiveChart').checked;
+
+  // Helper: filter sessions by period, optionally excluding passive
+  function periodSessions(excludePassive) {
+    let s = getFilteredSessions(period);
+    if (excludePassive) s = s.filter(x => !x.passive);
+    return s;
+  }
+
+  // ---- Pie chart (own date range) ----
+  const pieFrom = document.getElementById('pieFrom').value;
+  const pieTo   = document.getElementById('pieTo').value;
+  let pieSessions = [...state.sessions];
+  if (pieFrom) pieSessions = pieSessions.filter(s => s.date >= pieFrom);
+  if (pieTo)   pieSessions = pieSessions.filter(s => s.date <= pieTo);
+  if (!showPassive) pieSessions = pieSessions.filter(s => !s.passive);
+
+  const bycat = {};
+  pieSessions.forEach(s => { bycat[s.cat] = (bycat[s.cat] || 0) + s.duration; });
+  const catIds = Object.keys(bycat).sort((a,b) => bycat[b]-bycat[a]);
+  const totalPieMins = catIds.reduce((a,c) => a + bycat[c], 0);
+
+  if (chartPie) chartPie.destroy();
+  if (catIds.length) {
+    chartPie = new Chart(document.getElementById('chartPie').getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: catIds.map(c => getCat(c).name),
+        datasets: [{ data: catIds.map(c => +(bycat[c]/60).toFixed(2)), backgroundColor: catIds.map(c => getCat(c).color + (getCat(c).passive ? '99' : 'ee')), borderWidth: 2, borderColor: '#f5f0e8' }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toFixed(1)} hrs (${((ctx.raw/(totalPieMins/60))*100).toFixed(0)}%)` } }
+        },
+        cutout: '60%',
+      }
+    });
+  } else {
+    const ctx = document.getElementById('chartPie').getContext('2d');
+    ctx.clearRect(0,0,999,999);
+  }
+
+  // Custom pie legend with %
+  const legendEl = document.getElementById('pieLegendCustom');
+  legendEl.innerHTML = catIds.length ? catIds.map(cid => {
+    const cat = getCat(cid);
+    const hrs = (bycat[cid]/60).toFixed(1);
+    const pct = totalPieMins > 0 ? ((bycat[cid]/totalPieMins)*100).toFixed(0) : 0;
+    return `<div style="display:flex;align-items:center;gap:8px">
+      <div style="width:12px;height:12px;border-radius:3px;background:${cat.color};flex-shrink:0"></div>
+      <div style="flex:1;font-size:15px;color:var(--text)">${cat.name}${cat.passive ? ' <span style="font-size:10px;color:#7a4aaa">(passive)</span>' : ''}</div>
+      <div style="font-size:15px;font-weight:700;color:var(--text)">${hrs}h</div>
+      <div style="font-size: 14px;color:var(--text-muted);min-width:32px;text-align:right">${pct}%</div>
+    </div>`;
+  }).join('') : '<div style="color:var(--text-muted);font-size:13px">No sessions in this range</div>';
+
+  // Pie range label
+  const pieLabel = document.getElementById('pieRangeLabel');
+  if (pieFrom || pieTo) {
+    const totalHrs = (totalPieMins/60).toFixed(1);
+    const fromStr = pieFrom ? dateLabel(pieFrom) : 'start';
+    const toStr = pieTo ? dateLabel(pieTo) : 'today';
+    pieLabel.textContent = `${fromStr} → ${toStr}  ·  ${pieSessions.length} sessions  ·  ${totalHrs} hrs total`;
+  } else {
+    const totalHrs = (totalPieMins/60).toFixed(1);
+    pieLabel.textContent = `All time  ·  ${pieSessions.length} sessions  ·  ${totalHrs} hrs total`;
+  }
+
+  // ---- Daily bar chart ----
+  const barSessions = periodSessions(!showPassive);
+  const byDate = {};
+  barSessions.forEach(s => {
+    if (!byDate[s.date]) byDate[s.date] = {};
+    byDate[s.date][s.cat] = (byDate[s.date][s.cat] || 0) + s.duration;
+  });
+
+  let dates = Object.keys(byDate).sort();
+  if (period !== 'all' && parseInt(period) <= 30) {
+    const end = new Date();
+    const start = new Date(end - (parseInt(period) - 1) * 86400000);
+    const allDates = [];
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      allDates.push(d.toISOString().slice(0, 10));
+    }
+    dates = allDates;
+  }
+
+  const allCatIds = [...new Set(barSessions.map(s => s.cat))];
+  const barDatasets = allCatIds.map(cid => {
+    const cat = getCat(cid);
+    return {
+      label: cat.name + (cat.passive ? ' 📺' : ''),
+      data: dates.map(d => +((byDate[d]?.[cid] || 0) / 60).toFixed(2)),
+      backgroundColor: cat.color + (cat.passive ? '66' : 'cc'),
+      borderWidth: cat.passive ? 1 : 0,
+      borderColor: cat.passive ? cat.color : 'transparent',
+      borderDash: cat.passive ? [4,2] : [],
+    };
+  });
+
+  if (chartBar) chartBar.destroy();
+  chartBar = new Chart(document.getElementById('chartBar').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: dates.map(d => { const dt = new Date(d + 'T12:00:00'); return dt.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }); }),
+      datasets: barDatasets
+    },
+    options: {
+      scales: {
+        x: { stacked: true, ticks: { color: '#2a1e0e', maxRotation: 45, font: { size: 12 } }, grid: { color: '#ddd5c4' } },
+        y: { stacked: true, ticks: { color: '#2a1e0e', font: { size: 12 } }, grid: { color: '#ddd5c4' }, title: { display: true, text: 'Hours', color: '#2a1e0e', font: { size: 13 } } }
+      },
+      plugins: { legend: { labels: { color: '#1a0e00', font: { size: 14 }, boxWidth: 12 } } },
+      barPercentage: 0.8,
+    }
+  });
+
+  // ---- Cumulative line chart ----
+  // Always show active; optionally add passive as second line
+  const activeSorted = [...state.sessions].filter(s => !s.passive).sort((a,b) => a.date > b.date ? 1 : -1);
+  let cumMins = 0;
+  const cumDates = [], cumHrsActive = [];
+  activeSorted.forEach(s => { cumMins += s.duration; cumDates.push(s.date); cumHrsActive.push(+(cumMins/60).toFixed(2)); });
+
+  const cumulativeDatasets = [
+    {
+      label: 'Active Hours',
+      data: cumHrsActive,
+      borderColor: '#9a6f2e',
+      backgroundColor: '#9a6f2e18',
+      fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2,
+    },
+    {
+      label: `Goal: ${state.goal}h`,
+      data: cumDates.map(() => state.goal),
+      borderColor: '#b0483a88',
+      borderDash: [6, 4], pointRadius: 0, borderWidth: 1.5,
+    }
+  ];
+
+  if (showPassive) {
+    const allSorted = [...state.sessions].sort((a,b) => a.date > b.date ? 1 : -1);
+    let cumAll = 0;
+    const allDatesC = [], cumHrsAll = [];
+    allSorted.forEach(s => { cumAll += s.duration; allDatesC.push(s.date); cumHrsAll.push(+(cumAll/60).toFixed(2)); });
+    cumulativeDatasets.unshift({
+      label: 'Total incl. Passive',
+      data: cumHrsAll,
+      borderColor: '#7a4aaa',
+      backgroundColor: 'transparent',
+      fill: false, tension: 0.4, pointRadius: 0, borderWidth: 1.5, borderDash: [5,3],
+    });
+  }
+
+  if (chartCumulative) chartCumulative.destroy();
+  chartCumulative = new Chart(document.getElementById('chartCumulative').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: cumDates.map(d => { const dt = new Date(d + 'T12:00:00'); return dt.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: '2-digit' }); }),
+      datasets: cumulativeDatasets
+    },
+    options: {
+      scales: {
+        x: { ticks: { color: '#2a1e0e', maxTicksLimit: 10, font: { size: 12 } }, grid: { color: '#ddd5c4' } },
+        y: { ticks: { color: '#2a1e0e', font: { size: 12 } }, grid: { color: '#ddd5c4' }, title: { display: true, text: 'Total Hours', color: '#2a1e0e', font: { size: 13 } } }
+      },
+      plugins: { legend: { labels: { color: '#1a0e00', font: { size: 14 }, boxWidth: 12 } } },
+    }
+  });
+
+  // ---- Week heatmap ----
+  const heatEl = document.getElementById('weekHeatmap');
+  const days7 = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days7.push(d.toISOString().slice(0, 10));
+  }
+
+  heatEl.innerHTML = days7.map(d => {
+    const daySessions = state.sessions.filter(s => s.date === d);
+    const activeMins = daySessions.filter(s=>!s.passive).reduce((a,s)=>a+s.duration,0);
+    const passiveMins = daySessions.filter(s=>s.passive).reduce((a,s)=>a+s.duration,0);
+    const totalMins = showPassive ? activeMins + passiveMins : activeMins;
+    const hrs = totalMins / 60;
+    const alpha = Math.min(1, hrs / 3);
+    const dt = new Date(d + 'T12:00:00');
+    const dayName = dt.toLocaleDateString('en-AU', { weekday: 'short' });
+    const dayNum = dt.getDate();
+    return `
+      <div class="week-cell" style="${totalMins > 0 ? `background:rgba(154,111,46,${0.1 + alpha * 0.4});border-color:rgba(154,111,46,${0.3 + alpha * 0.5})` : ''}">
+        <div class="wc-day">${dayName} ${dayNum}</div>
+        ${activeMins > 0 ? `<div class="wc-hrs">${(activeMins/60).toFixed(1)}h</div>` : ''}
+        ${passiveMins > 0 && showPassive ? `<div style="font-size:9px;color:#7a4aaa">+${(passiveMins/60).toFixed(1)}h 📺</div>` : ''}
+        ${totalMins === 0 ? '<div style="color:var(--text-dim);font-size:10px">—</div>' : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function clearPieDates() {
+  document.getElementById('pieFrom').value = '';
+  document.getElementById('pieTo').value = '';
+  renderCharts();
+}
+
+// ===================== CATEGORIES =====================
+function buildColorRow() {
+  const row = document.getElementById('colorRow');
+  row.innerHTML = COLORS.map(c => `
+    <div class="color-swatch ${c === selectedColor ? 'selected' : ''}" 
+         style="background:${c}" 
+         onclick="selectColor('${c}')"></div>
+  `).join('');
+}
+
+function selectColor(c) {
+  selectedColor = c;
+  buildColorRow();
+}
+
+function addCategory() {
+  const name = document.getElementById('newCatName').value.trim();
+  if (!name) { showToast('Please enter a category name.'); return; }
+  if (state.categories.find(c => c.name.toLowerCase() === name.toLowerCase())) {
+    showToast('Category already exists.'); return;
+  }
+  const id = name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
+  const passive = document.getElementById('newCatPassive').checked;
+  state.categories.push({ id, name, color: selectedColor, passive });
+  saveState();
+  document.getElementById('newCatName').value = '';
+  document.getElementById('newCatPassive').checked = false;
+  renderCategories();
+  populateSelects();
+  showToast(`Added: ${name}`);
+}
+
+function deleteCategory(id) {
+  const used = state.sessions.some(s => s.cat === id);
+  if (used) { showToast('Cannot delete — category has sessions.'); return; }
+  state.categories = state.categories.filter(c => c.id !== id);
+  saveState();
+  renderCategories();
+  populateSelects();
+  showToast('Category deleted');
+}
+
+function renderCategories() {
+  const el = document.getElementById('catList');
+  if (!state.categories.length) {
+    el.innerHTML = '<div class="empty"><div class="e-text">No categories yet</div></div>';
+    return;
+  }
+  el.innerHTML = state.categories.map(c => {
+    const count = state.sessions.filter(s => s.cat === c.id).length;
+    const mins = state.sessions.filter(s => s.cat === c.id).reduce((a, s) => a + s.duration, 0);
+    return `
+      <div class="cat-item">
+        <div class="color-dot" style="background:${c.color}"></div>
+        <div class="cat-item-name">${c.name}${c.passive ? '<span class="passive-badge" style="margin-left:6px">📺 passive</span>' : ''}</div>
+        <div class="cat-item-count">${count} session${count !== 1 ? 's' : ''} · ${fmtMins(mins)}</div>
+        <button class="btn btn-danger btn-sm" onclick="deleteCategory('${c.id}')">✕</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function togglePassive(e) {
+  // allow clicking the whole row to toggle
+  if (e.target.tagName === 'INPUT') return;
+  const cb = document.getElementById('logPassive');
+  cb.checked = !cb.checked;
+}
+
+function onCategoryChange() {
+  const cat = state.categories.find(c => c.id === document.getElementById('logCategory').value);
+  if (cat && cat.passive) {
+    document.getElementById('logPassive').checked = true;
+  } else {
+    document.getElementById('logPassive').checked = false;
+  }
+}
+
+function populateSelects() {
+  const cats = state.categories;
+  const logSel = document.getElementById('logCategory');
+  const filterSel = document.getElementById('filterCategory');
+  const prev = logSel.value;
+
+  logSel.innerHTML = cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  if (prev) logSel.value = prev;
+
+  filterSel.innerHTML = '<option value="">All categories</option>' +
+    cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+// ===================== TABS =====================
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  document.querySelectorAll('.tab')[['log','today','history','charts','categories'].indexOf(p)].classList.add('active');
+
+  if (p === 'today') renderToday();
+  if (p === 'history') renderHistory();
+  if (p === 'charts') renderCharts();
+  if (p === 'categories') { renderCategories(); buildColorRow(); }
+}
+
+// ===================== MODALS =====================
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// ===================== TOAST =====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===================== UNSAVED CHANGES TRACKING =====================
+let hasUnsavedChanges = false;
+let lastSavedTime = null;
+
+function markUnsaved() {
+  hasUnsavedChanges = true;
+  document.getElementById('unsavedDot').style.display = 'block';
+  document.getElementById('exportBtn').style.background = '#c87a6e';
+  document.getElementById('exportBtn').style.borderColor = '#c87a6e';
+  document.getElementById('exportBtn').textContent = 'Export Data ●';
+}
+
+function markSaved() {
+  hasUnsavedChanges = false;
+  lastSavedTime = new Date();
+  document.getElementById('unsavedDot').style.display = 'none';
+  document.getElementById('exportBtn').style.background = '';
+  document.getElementById('exportBtn').style.borderColor = '';
+  document.getElementById('exportBtn').textContent = 'Export Data';
+  updateSyncStatusLine();
+}
+
+function updateSyncStatusLine() {
+  const el = document.getElementById('syncStatusLine');
+  if (lastSavedTime) {
+    const t = lastSavedTime.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+    const d = lastSavedTime.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+    el.textContent = `Last saved ${d} at ${t}`;
+    el.style.color = 'var(--accent2)';
+  } else {
+    // Check if we have a last-saved timestamp in state
+    if (state.lastExported) {
+      const d = new Date(state.lastExported);
+      el.textContent = `File saved ${d.toLocaleDateString('en-AU', { day:'numeric', month:'short' })} at ${d.toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'})}`;
+      el.style.color = 'var(--text-muted)';
+    } else {
+      el.textContent = 'Not yet saved to iCloud';
+      el.style.color = 'var(--text-dim)';
+    }
+  }
+}
+
+// Override saveState to track unsaved changes
+const _origSaveState = saveState;
+function saveStateAndMark() {
+  saveState();
+  markUnsaved();
+}
+
+// ===================== EXPORT / IMPORT =====================
+function exportData() {
+  state.lastExported = new Date().toISOString();
+  saveState();
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `studio-italiano-${todayStr()}.json`;
+  a.click();
+  markSaved();
+
+  // Show iCloud banner tip on first few exports
+  const exportCount = parseInt(localStorage.getItem('si_export_count') || '0') + 1;
+  localStorage.setItem('si_export_count', exportCount);
+  if (exportCount <= 3) {
+    document.getElementById('syncBanner').style.display = 'flex';
+  }
+
+  showToast('✓ File downloaded — save it to your iCloud Drive folder');
+}
+
+function dismissBanner() {
+  document.getElementById('syncBanner').style.display = 'none';
+}
+
+function importData(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.sessions || !imported.categories) throw new Error('Invalid format');
+      state = imported;
+      saveState();
+      markSaved();
+      init();
+      showToast(`✓ Loaded ${imported.sessions.length} sessions from file`);
+    } catch(err) {
+      showToast('Import failed — check the file is a Studio Italiano backup.');
+    }
+  };
+  reader.readAsText(file);
+  // Reset so same file can be re-imported if needed
+  setTimeout(() => { event.target.value = ''; }, 500);
+}
+
+// Warn before closing if unsaved changes
+window.addEventListener('beforeunload', e => {
+  if (hasUnsavedChanges) {
+    e.preventDefault();
+    e.returnValue = 'You have unsaved changes. Export your data to iCloud before leaving?';
+    return e.returnValue;
+  }
+});
+
+// ===================== INIT =====================
+function init() {
+  loadState();
+  document.getElementById('logDate').value = todayStr();
+  populateSelects();
+  renderLogToday();
+  updateGoalBar();
+  buildColorRow();
+  updateSyncStatusLine();
+
+  document.getElementById('logCategory').addEventListener('change', onCategoryChange);
+
+  ['logStart', 'logEnd'].forEach(id => {
+    document.getElementById(id).addEventListener('change', calcRange);
+  });
+
+  ['filterCategory', 'filterFrom', 'filterTo', 'filterSearch'].forEach(id => {
+    document.getElementById(id).addEventListener('input', renderHistory);
+  });
+}
+
+// Patch addSession and addCategory to mark unsaved
+const _origAddSession = addSession;
+// We handle unsaved marking inside addSession by patching saveState calls:
+// Every time saveState() is called after a user action, we mark unsaved.
+// Override saveState globally:
+window._saveStateOrig = window.saveState;
+function saveState() {
+  localStorage.setItem('studio_italiano_v2', JSON.stringify(state));
+  // Only mark unsaved if already initialised (not on first load)
+  if (window._appInitDone) markUnsaved();
+}
+
+init();
+window._appInitDone = true;
+// After init, state is "in sync" with whatever was in localStorage
+// Only mark unsaved if there's no iCloud file yet
+if (!state.lastExported) markUnsaved();
+else { hasUnsavedChanges = false; document.getElementById('unsavedDot').style.display='none'; }
+</script>
+</body>
+</html>
