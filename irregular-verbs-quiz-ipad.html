@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Irregular Verbs Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,500;0,700;1,300&family=Mulish:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F4F0;
+    --surface: #FFFFFF;
+    --ink: #1C1C1A;
+    --muted: #7A7A74;
+    --border: #E4E4DE;
+    --correct: #2E6B4F;
+    --wrong: #C0392B;
+    --accent: #8B3A6B;
+    --plural-bg: #EEF8F0;
+    --plural-col: #2E6B4F;
+    --singular-bg: #EEF4FF;
+    --singular-col: #1A4D8F;
+    --warn-bg: #F5EEF8;
+    --warn-border: #C9A0DC;
+
+    --essere: #C47A2E;
+    --avere: #2E6B8B;
+    --andare: #6B2E8B;
+    --fare: #2E8B5A;
+    --stare: #8B2E2E;
+    --bere: #2E7A6B;
+    --sapere: #7A6B2E;
+    --dare: #8B5E2E;
+    --dire: #2E5E8B;
+    --rimanere: #5E2E8B;
+    --uscire: #2E8B7A;
+    --venire: #8B2E5E;
+    --scegliere: #3A7A5A;
+    --dovere: #6B4A2E;
+    --potere: #2E4A6B;
+    --volere: #6B2E4A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Mulish', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--ink);
+  }
+
+  header {
+    background: var(--ink);
+    padding: 1.2rem 2rem;
+  }
+
+  header h1 {
+    font-family: 'Crimson Pro', serif;
+    font-weight: 300;
+    font-size: 1.5rem;
+    color: #F7F4F0;
+  }
+
+  header h1 em { color: #C9A0DC; font-style: italic; }
+  .header-sub { font-size: 0.72rem; color: rgba(255,255,255,0.4); margin-top: 0.2rem; letter-spacing: 0.06em; }
+
+  .progress-bar-wrap { background: rgba(255,255,255,0.1); height: 3px; }
+  .progress-bar-fill { height: 100%; background: var(--accent); transition: width 0.4s ease; width: 0%; }
+
+  main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+
+  /* ── SELECTOR PANEL ── */
+  .selector-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1.4rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  }
+
+  .selector-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .selector-row:last-child { margin-bottom: 0; }
+
+  .selector-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    min-width: 60px;
+  }
+
+  .verb-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; flex: 1; }
+
+  .verb-btn {
+    padding: 0.6rem 1.1rem;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.18s;
+    font-style: italic;
+    min-height: 44px;
+  }
+
+  .verb-btn:hover { transform: translateY(-1px); }
+
+  .verb-btn.active.essere  { background: #FFF5E8; border-color: var(--essere);  color: var(--essere);  }
+  .verb-btn.active.avere   { background: #E8F3FF; border-color: var(--avere);   color: var(--avere);   }
+  .verb-btn.active.andare  { background: #F5E8FF; border-color: var(--andare);  color: var(--andare);  }
+  .verb-btn.active.fare    { background: #E8FFF3; border-color: var(--fare);    color: var(--fare);    }
+  .verb-btn.active.stare   { background: #FFE8E8; border-color: var(--stare);   color: var(--stare);   }
+  .verb-btn.active.bere    { background: #E8FFF9; border-color: var(--bere);    color: var(--bere);    }
+  .verb-btn.active.sapere  { background: #F9FFE8; border-color: var(--sapere);  color: var(--sapere);  }
+  .verb-btn.active.dare    { background: #FFF3E8; border-color: var(--dare);    color: var(--dare);    }
+  .verb-btn.active.dire    { background: #E8F0FF; border-color: var(--dire);    color: var(--dire);    }
+  .verb-btn.active.rimanere { background: #F0E8FF; border-color: var(--rimanere); color: var(--rimanere); }
+  .verb-btn.active.uscire  { background: #E8FFF8; border-color: var(--uscire);  color: var(--uscire);  }
+  .verb-btn.active.venire  { background: #FFE8F3; border-color: var(--venire);  color: var(--venire);  }
+  .verb-btn.active.scegliere { background: #E8F7EF; border-color: var(--scegliere); color: var(--scegliere); }
+  .verb-btn.active.dovere  { background: #F5EDE8; border-color: var(--dovere);  color: var(--dovere);  }
+  .verb-btn.active.potere  { background: #E8EDF5; border-color: var(--potere);  color: var(--potere);  }
+  .verb-btn.active.volere  { background: #F5E8ED; border-color: var(--volere);  color: var(--volere);  }
+
+  .person-btns { display: flex; gap: 0.5rem; flex: 1; }
+
+  .person-btn {
+    flex: 1;
+    padding: 0.6rem 0.5rem;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    font-family: 'Mulish', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.18s;
+    text-align: center;
+    min-height: 44px;
+  }
+
+  .person-btn.active.singular { background: var(--singular-bg); border-color: var(--singular-col); color: var(--singular-col); }
+  .person-btn.active.plural   { background: var(--plural-bg);   border-color: var(--plural-col);   color: var(--plural-col);   }
+  .person-btn.active.all      { background: var(--ink); border-color: var(--ink); color: white; }
+
+  .start-btn {
+    width: 100%;
+    margin-top: 1rem;
+    background: var(--ink);
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 10px;
+    font-family: 'Mulish', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .start-btn:hover { background: var(--accent); }
+  .start-btn:disabled { opacity: 0.35; cursor: default; background: var(--ink); }
+
+  .q-count-preview {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.6rem;
+  }
+
+  /* ── GUIDE ── */
+  .guide-wrap { margin-bottom: 1.4rem; }
+
+  .guide-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+  }
+
+  .guide-label { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+  .toggle-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.25rem 0.75rem;
+    font-family: 'Mulish', sans-serif;
+    font-size: 0.72rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.6rem;
+  }
+
+  .guide-card {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    opacity: 0.35;
+    transition: opacity 0.2s;
+  }
+
+  .guide-card.active-verb { opacity: 1; }
+
+  .guide-verb {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    font-weight: 500;
+    font-style: italic;
+    margin-bottom: 0.4rem;
+  }
+
+  .guide-verb.essere { color: var(--essere); }
+  .guide-verb.avere  { color: var(--avere);  }
+  .guide-verb.andare { color: var(--andare); }
+  .guide-verb.fare   { color: var(--fare);   }
+  .guide-verb.stare  { color: var(--stare);  }
+  .guide-verb.bere   { color: var(--bere);   }
+  .guide-verb.sapere { color: var(--sapere); }
+  .guide-verb.dare    { color: var(--dare);    }
+  .guide-verb.dire    { color: var(--dire);    }
+  .guide-verb.rimanere { color: var(--rimanere); }
+  .guide-verb.uscire  { color: var(--uscire);  }
+  .guide-verb.venire  { color: var(--venire);  }
+  .guide-verb.scegliere { color: var(--scegliere); }
+  .guide-verb.dovere  { color: var(--dovere);  }
+  .guide-verb.potere  { color: var(--potere);  }
+  .guide-verb.volere  { color: var(--volere);  }
+
+  .conj-table { width: 100%; border-collapse: collapse; }
+  .conj-table td { font-size: 0.78rem; padding: 0.12rem 0; vertical-align: top; }
+  .conj-table td:first-child { color: var(--muted); width: 38px; font-size: 0.72rem; }
+  .conj-table td:last-child { font-family: 'Crimson Pro', serif; font-size: 0.92rem; color: var(--ink); }
+  .conj-table tr.pl td:last-child { color: var(--plural-col); }
+  .conj-table tr.pl td:first-child { color: #6aaa88; }
+
+  /* ── QUIZ ── */
+  #quiz-area { display: none; }
+
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+  }
+
+  .q-counter { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .back-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Mulish', sans-serif;
+  }
+
+  .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .verb-label { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.9rem; }
+
+  .verb-tag {
+    padding: 0.2rem 0.8rem;
+    border-radius: 4px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    font-style: italic;
+    font-weight: 500;
+    border: 1px solid;
+  }
+
+  .verb-tag.essere { background: #FFF5E8; border-color: var(--essere); color: var(--essere); }
+  .verb-tag.avere  { background: #E8F3FF; border-color: var(--avere);  color: var(--avere);  }
+  .verb-tag.andare { background: #F5E8FF; border-color: var(--andare); color: var(--andare); }
+  .verb-tag.fare   { background: #E8FFF3; border-color: var(--fare);   color: var(--fare);   }
+  .verb-tag.stare  { background: #FFE8E8; border-color: var(--stare);  color: var(--stare);  }
+  .verb-tag.bere   { background: #E8FFF9; border-color: var(--bere);   color: var(--bere);   }
+  .verb-tag.sapere { background: #F9FFE8; border-color: var(--sapere); color: var(--sapere); }
+  .verb-tag.dare    { background: #FFF3E8; border-color: var(--dare);    color: var(--dare);    }
+  .verb-tag.dire    { background: #E8F0FF; border-color: var(--dire);    color: var(--dire);    }
+  .verb-tag.rimanere { background: #F0E8FF; border-color: var(--rimanere); color: var(--rimanere); }
+  .verb-tag.uscire  { background: #E8FFF8; border-color: var(--uscire);  color: var(--uscire);  }
+  .verb-tag.venire  { background: #FFE8F3; border-color: var(--venire);  color: var(--venire);  }
+  .verb-tag.scegliere { background: #E8F7EF; border-color: var(--scegliere); color: var(--scegliere); }
+  .verb-tag.dovere  { background: #F5EDE8; border-color: var(--dovere);  color: var(--dovere);  }
+  .verb-tag.potere  { background: #E8EDF5; border-color: var(--potere);  color: var(--potere);  }
+  .verb-tag.volere  { background: #F5E8ED; border-color: var(--volere);  color: var(--volere);  }
+
+  .person-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .person-badge.singular { background: var(--singular-bg); color: var(--singular-col); }
+  .person-badge.plural   { background: var(--plural-bg);   color: var(--plural-col);   }
+
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem 2rem 1.5rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+    transition: border-color 0.3s;
+  }
+
+  .q-card.correct { border-color: var(--correct); }
+  .q-card.wrong   { border-color: var(--wrong); }
+
+  .sentence {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.7rem;
+    font-weight: 300;
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 1.4rem;
+  }
+
+  .pronoun-badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-right: 0.3rem;
+  }
+
+  .pronoun-badge.io   { background: #FFF0E8; color: #8B4513; }
+  .pronoun-badge.tu   { background: #EEEEFF; color: #4A4A8A; }
+  .pronoun-badge.lui  { background: #E8F5F5; color: #2A6B6B; }
+  .pronoun-badge.noi  { background: var(--plural-bg); color: var(--plural-col); }
+  .pronoun-badge.voi  { background: #E8EFFF; color: #1A4D8F; }
+  .pronoun-badge.loro { background: #F5E8F3; color: #7A2E6B; }
+
+  .input-row { display: flex; align-items: center; gap: 0.75rem; }
+
+  .verb-input {
+    flex: 1;
+    border: none;
+    border-bottom: 2px solid var(--border);
+    background: transparent;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.4rem;
+    color: var(--ink);
+    padding: 0.3rem 0.2rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .verb-input:focus { border-color: var(--accent); }
+  .verb-input.correct { border-color: var(--correct); color: var(--correct); }
+  .verb-input.wrong   { border-color: var(--wrong);   color: var(--wrong);   }
+
+  .check-btn {
+    background: var(--ink);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.4rem;
+    border-radius: 8px;
+    font-family: 'Mulish', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+    min-height: 44px;
+  }
+
+  .check-btn:hover { background: var(--accent); }
+  .check-btn:disabled { opacity: 0.4; cursor: default; background: var(--ink); }
+
+  .feedback-text {
+    margin-top: 0.9rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    display: none;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+  }
+
+  .feedback-text.show { display: block; }
+  .feedback-text.wrong-fb { background: #FDECEA; color: #922B21; }
+
+  .nav-row { display: flex; justify-content: flex-end; margin-top: 0.5rem; width: 100%; }
+
+  .next-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0.9rem 2rem;
+    border-radius: 10px;
+    font-family: 'Mulish', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+    width: 100%;
+    min-height: 52px;
+  }
+
+  .next-btn.show { display: block; }
+  .next-btn:hover { opacity: 0.85; }
+
+  /* ── RESULTS ── */
+  #results { display: none; text-align: center; padding: 3rem 1rem; }
+
+  .results-score {
+    font-family: 'Crimson Pro', serif;
+    font-size: 5rem;
+    font-weight: 300;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .results-score span { color: var(--accent); }
+  .results-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1rem; }
+  .results-msg { font-family: 'Crimson Pro', serif; font-size: 1.4rem; font-style: italic; color: var(--muted); margin-bottom: 2rem; }
+
+  .action-btn {
+    background: var(--ink);
+    color: white;
+    border: none;
+    padding: 0.85rem 2rem;
+    border-radius: 10px;
+    font-family: 'Mulish', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 0.3rem;
+  }
+
+  .action-btn:hover { background: var(--accent); }
+
+  .action-btn.secondary {
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+  }
+
+  .action-btn.secondary:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
+
+  .review-section { margin-top: 2.5rem; text-align: left; }
+  .review-title { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+
+  .review-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .review-text { flex: 1; font-family: 'Crimson Pro', serif; font-size: 1rem; }
+  .review-text em { color: var(--correct); font-style: normal; font-weight: 500; }
+  .review-text s { color: var(--wrong); }
+
+  @media (max-width: 480px) {
+    .sentence { font-size: 1.3rem; }
+    .guide-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Verbi <em>Irregolari</em></h1>
+  <div class="header-sub">Select verbs and persons to practise</div>
+</header>
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progress-fill"></div>
+</div>
+
+<main>
+
+  <!-- SELECTOR -->
+  <div class="selector-panel" id="selector-panel">
+
+    <div class="selector-row">
+      <span class="selector-label">Verbs</span>
+      <div class="verb-btns">
+        <button class="verb-btn active essere" id="vb-essere"  onclick="toggleVerb('essere')">essere</button>
+        <button class="verb-btn avere"          id="vb-avere"   onclick="toggleVerb('avere')">avere</button>
+        <button class="verb-btn andare"         id="vb-andare"  onclick="toggleVerb('andare')">andare</button>
+        <button class="verb-btn fare"           id="vb-fare"    onclick="toggleVerb('fare')">fare</button>
+        <button class="verb-btn stare"          id="vb-stare"   onclick="toggleVerb('stare')">stare</button>
+        <button class="verb-btn bere"           id="vb-bere"    onclick="toggleVerb('bere')">bere</button>
+        <button class="verb-btn sapere"         id="vb-sapere"  onclick="toggleVerb('sapere')">sapere</button>
+        <button class="verb-btn dare"           id="vb-dare"    onclick="toggleVerb('dare')">dare</button>
+        <button class="verb-btn dire"           id="vb-dire"    onclick="toggleVerb('dire')">dire</button>
+        <button class="verb-btn rimanere"       id="vb-rimanere" onclick="toggleVerb('rimanere')">rimanere</button>
+        <button class="verb-btn uscire"         id="vb-uscire"  onclick="toggleVerb('uscire')">uscire</button>
+        <button class="verb-btn venire"         id="vb-venire"  onclick="toggleVerb('venire')">venire</button>
+        <button class="verb-btn scegliere"      id="vb-scegliere" onclick="toggleVerb('scegliere')">scegliere</button>
+        <button class="verb-btn dovere"         id="vb-dovere"  onclick="toggleVerb('dovere')">dovere</button>
+        <button class="verb-btn potere"         id="vb-potere"  onclick="toggleVerb('potere')">potere</button>
+        <button class="verb-btn volere"         id="vb-volere"  onclick="toggleVerb('volere')">volere</button>
+      </div>
+    </div>
+
+    <div class="selector-row">
+      <span class="selector-label">Persons</span>
+      <div class="person-btns">
+        <button class="person-btn active singular" id="pb-singular" onclick="setPersonFilter('singular')">Singular</button>
+        <button class="person-btn plural"          id="pb-plural"   onclick="setPersonFilter('plural')">Plural</button>
+        <button class="person-btn all"             id="pb-all"      onclick="setPersonFilter('all')">All</button>
+      </div>
+    </div>
+
+    <button class="start-btn" id="start-btn" onclick="startQuiz()">Start quiz</button>
+    <div class="q-count-preview" id="q-preview">3 questions (1 verb × 3 singular persons)</div>
+  </div>
+
+  <!-- GUIDE -->
+  <div class="guide-wrap">
+    <div class="guide-toggle-row">
+      <span class="guide-label">Conjugation guide</span>
+      <button class="toggle-btn" id="toggle-guide" onclick="toggleGuide()">Hide</button>
+    </div>
+    <div class="guide-grid" id="guide-grid">
+
+      <div class="guide-card active-verb" id="gc-essere">
+        <div class="guide-verb essere">essere</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>sono</td></tr>
+          <tr><td>tu</td><td>sei</td></tr>
+          <tr><td>lui/lei</td><td>è</td></tr>
+          <tr class="pl"><td>noi</td><td>siamo</td></tr>
+          <tr class="pl"><td>voi</td><td>siete</td></tr>
+          <tr class="pl"><td>loro</td><td>sono</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-avere">
+        <div class="guide-verb avere">avere</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>ho</td></tr>
+          <tr><td>tu</td><td>hai</td></tr>
+          <tr><td>lui/lei</td><td>ha</td></tr>
+          <tr class="pl"><td>noi</td><td>abbiamo</td></tr>
+          <tr class="pl"><td>voi</td><td>avete</td></tr>
+          <tr class="pl"><td>loro</td><td>hanno</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-andare">
+        <div class="guide-verb andare">andare</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>vado</td></tr>
+          <tr><td>tu</td><td>vai</td></tr>
+          <tr><td>lui/lei</td><td>va</td></tr>
+          <tr class="pl"><td>noi</td><td>andiamo</td></tr>
+          <tr class="pl"><td>voi</td><td>andate</td></tr>
+          <tr class="pl"><td>loro</td><td>vanno</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-fare">
+        <div class="guide-verb fare">fare</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>faccio</td></tr>
+          <tr><td>tu</td><td>fai</td></tr>
+          <tr><td>lui/lei</td><td>fa</td></tr>
+          <tr class="pl"><td>noi</td><td>facciamo</td></tr>
+          <tr class="pl"><td>voi</td><td>fate</td></tr>
+          <tr class="pl"><td>loro</td><td>fanno</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-stare">
+        <div class="guide-verb stare">stare</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>sto</td></tr>
+          <tr><td>tu</td><td>stai</td></tr>
+          <tr><td>lui/lei</td><td>sta</td></tr>
+          <tr class="pl"><td>noi</td><td>stiamo</td></tr>
+          <tr class="pl"><td>voi</td><td>state</td></tr>
+          <tr class="pl"><td>loro</td><td>stanno</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-bere">
+        <div class="guide-verb bere">bere</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>bevo</td></tr>
+          <tr><td>tu</td><td>bevi</td></tr>
+          <tr><td>lui/lei</td><td>beve</td></tr>
+          <tr class="pl"><td>noi</td><td>beviamo</td></tr>
+          <tr class="pl"><td>voi</td><td>bevete</td></tr>
+          <tr class="pl"><td>loro</td><td>bevono</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-sapere">
+        <div class="guide-verb sapere">sapere</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>so</td></tr>
+          <tr><td>tu</td><td>sai</td></tr>
+          <tr><td>lui/lei</td><td>sa</td></tr>
+          <tr class="pl"><td>noi</td><td>sappiamo</td></tr>
+          <tr class="pl"><td>voi</td><td>sapete</td></tr>
+          <tr class="pl"><td>loro</td><td>sanno</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-dare">
+        <div class="guide-verb dare">dare</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>do</td></tr>
+          <tr><td>tu</td><td>dai</td></tr>
+          <tr><td>lui/lei</td><td>dà</td></tr>
+          <tr class="pl"><td>noi</td><td>diamo</td></tr>
+          <tr class="pl"><td>voi</td><td>date</td></tr>
+          <tr class="pl"><td>loro</td><td>danno</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-dire">
+        <div class="guide-verb dire">dire</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>dico</td></tr>
+          <tr><td>tu</td><td>dici</td></tr>
+          <tr><td>lui/lei</td><td>dice</td></tr>
+          <tr class="pl"><td>noi</td><td>diciamo</td></tr>
+          <tr class="pl"><td>voi</td><td>dite</td></tr>
+          <tr class="pl"><td>loro</td><td>dicono</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-rimanere">
+        <div class="guide-verb rimanere">rimanere</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>rimango</td></tr>
+          <tr><td>tu</td><td>rimani</td></tr>
+          <tr><td>lui/lei</td><td>rimane</td></tr>
+          <tr class="pl"><td>noi</td><td>rimaniamo</td></tr>
+          <tr class="pl"><td>voi</td><td>rimanete</td></tr>
+          <tr class="pl"><td>loro</td><td>rimangono</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-uscire">
+        <div class="guide-verb uscire">uscire</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>esco</td></tr>
+          <tr><td>tu</td><td>esci</td></tr>
+          <tr><td>lui/lei</td><td>esce</td></tr>
+          <tr class="pl"><td>noi</td><td>usciamo</td></tr>
+          <tr class="pl"><td>voi</td><td>uscite</td></tr>
+          <tr class="pl"><td>loro</td><td>escono</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-venire">
+        <div class="guide-verb venire">venire</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>vengo</td></tr>
+          <tr><td>tu</td><td>vieni</td></tr>
+          <tr><td>lui/lei</td><td>viene</td></tr>
+          <tr class="pl"><td>noi</td><td>veniamo</td></tr>
+          <tr class="pl"><td>voi</td><td>venite</td></tr>
+          <tr class="pl"><td>loro</td><td>vengono</td></tr>
+        </table>
+      </div>
+
+
+      <div class="guide-card" id="gc-scegliere">
+        <div class="guide-verb scegliere">scegliere</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>scelgo</td></tr>
+          <tr><td>tu</td><td>scegli</td></tr>
+          <tr><td>lui/lei</td><td>sceglie</td></tr>
+          <tr class="pl"><td>noi</td><td>scegliamo</td></tr>
+          <tr class="pl"><td>voi</td><td>scegliete</td></tr>
+          <tr class="pl"><td>loro</td><td>scelgono</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-dovere">
+        <div class="guide-verb dovere">dovere</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>devo</td></tr>
+          <tr><td>tu</td><td>devi</td></tr>
+          <tr><td>lui/lei</td><td>deve</td></tr>
+          <tr class="pl"><td>noi</td><td>dobbiamo</td></tr>
+          <tr class="pl"><td>voi</td><td>dovete</td></tr>
+          <tr class="pl"><td>loro</td><td>devono</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-potere">
+        <div class="guide-verb potere">potere</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>posso</td></tr>
+          <tr><td>tu</td><td>puoi</td></tr>
+          <tr><td>lui/lei</td><td>può</td></tr>
+          <tr class="pl"><td>noi</td><td>possiamo</td></tr>
+          <tr class="pl"><td>voi</td><td>potete</td></tr>
+          <tr class="pl"><td>loro</td><td>possono</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-card" id="gc-volere">
+        <div class="guide-verb volere">volere</div>
+        <table class="conj-table">
+          <tr><td>io</td><td>voglio</td></tr>
+          <tr><td>tu</td><td>vuoi</td></tr>
+          <tr><td>lui/lei</td><td>vuole</td></tr>
+          <tr class="pl"><td>noi</td><td>vogliamo</td></tr>
+          <tr class="pl"><td>voi</td><td>volete</td></tr>
+          <tr class="pl"><td>loro</td><td>vogliono</td></tr>
+        </table>
+      </div>
+        </div><!-- /guide-grid -->
+  </div><!-- /guide-wrap -->
+
+  <!-- QUIZ AREA -->
+  <div id="quiz-area">
+    <div class="quiz-header">
+      <div class="q-counter" id="q-counter">Question 1 of 3</div>
+      <button class="back-btn" onclick="goBack()">← Change selection</button>
+    </div>
+
+    <div class="verb-label">
+      <span class="verb-tag essere" id="verb-tag">essere</span>
+      <span class="person-badge singular" id="person-badge">singular</span>
+    </div>
+
+    <div class="q-card" id="q-card">
+      <div class="sentence" id="sentence-display"></div>
+      <div class="input-row">
+        <input class="verb-input" id="verb-input" type="text"
+               autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="none" inputmode="text" enterkeyhint="done"
+               placeholder="…" onkeydown="handleKey(event)" />
+        <button class="check-btn" id="check-btn" onclick="checkAnswer()">Check</button>
+      </div>
+      <div class="feedback-text" id="feedback"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="results-score" id="results-score">0<span>/3</span></div>
+    <div class="results-label">final score</div>
+    <div class="results-msg" id="results-msg">—</div>
+    <div>
+      <button class="action-btn" onclick="restartSame()">Try again</button>
+      <button class="action-btn secondary" onclick="goBack()">Change selection</button>
+    </div>
+    <div class="review-section" id="review-section"></div>
+  </div>
+
+</main>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────────
+const VERBS_DATA = {
+  essere: {
+    io:   { form: 'sono',    sentence: 'italiano.' },
+    tu:   { form: 'sei',     sentence: 'di Roma?' },
+    lui:  { form: 'è',       sentence: 'a casa.' },
+    noi:  { form: 'siamo',   sentence: 'pronti.' },
+    voi:  { form: 'siete',   sentence: 'studenti?' },
+    loro: { form: 'sono',    sentence: 'in ritardo.' },
+  },
+  avere: {
+    io:   { form: 'ho',      sentence: 'fame.' },
+    tu:   { form: 'hai',     sentence: 'sete?' },
+    lui:  { form: 'ha',      sentence: 'fretta.' },
+    noi:  { form: 'abbiamo', sentence: 'bisogno di studiare.' },
+    voi:  { form: 'avete',   sentence: 'voglia di uscire?' },
+    loro: { form: 'hanno',   sentence: 'sonno.' },
+  },
+  andare: {
+    io:   { form: 'vado',    sentence: 'al cinema stasera.' },
+    tu:   { form: 'vai',     sentence: 'a scuola oggi?' },
+    lui:  { form: 'va',      sentence: 'in palestra ogni giorno.' },
+    noi:  { form: 'andiamo', sentence: 'al mercato sabato.' },
+    voi:  { form: 'andate',  sentence: 'a teatro stasera?' },
+    loro: { form: 'vanno',   sentence: 'al bar insieme.' },
+  },
+  fare: {
+    io:   { form: 'faccio',   sentence: 'sport ogni giorno.' },
+    tu:   { form: 'fai',      sentence: 'colazione a casa?' },
+    lui:  { form: 'fa',       sentence: 'una passeggiata ogni mattina.' },
+    noi:  { form: 'facciamo', sentence: 'una gita domenica.' },
+    voi:  { form: 'fate',     sentence: 'sport insieme?' },
+    loro: { form: 'fanno',    sentence: 'la spesa al mercato.' },
+  },
+  stare: {
+    io:   { form: 'sto',     sentence: 'bene, grazie.' },
+    tu:   { form: 'stai',    sentence: 'a casa stasera?' },
+    lui:  { form: 'sta',     sentence: 'male oggi.' },
+    noi:  { form: 'stiamo',  sentence: 'in centro.' },
+    voi:  { form: 'state',   sentence: 'bene?' },
+    loro: { form: 'stanno',  sentence: 'a Roma per una settimana.' },
+  },
+  bere: {
+    io:   { form: 'bevo',    sentence: 'un caffè ogni mattina.' },
+    tu:   { form: 'bevi',    sentence: 'acqua o succo?' },
+    lui:  { form: 'beve',    sentence: 'il tè senza zucchero.' },
+    noi:  { form: 'beviamo', sentence: 'vino con la cena.' },
+    voi:  { form: 'bevete',  sentence: 'troppo caffè!' },
+    loro: { form: 'bevono',  sentence: 'birra al bar.' },
+  },
+  sapere: {
+    io:   { form: 'so',       sentence: 'parlare italiano.' },
+    tu:   { form: 'sai',      sentence: 'dov\'è la stazione?' },
+    lui:  { form: 'sa',       sentence: 'cucinare molto bene.' },
+    noi:  { form: 'sappiamo', sentence: 'la risposta.' },
+    voi:  { form: 'sapete',   sentence: 'che ora è?' },
+    loro: { form: 'sanno',    sentence: 'la verità.' },
+  },
+  dare: {
+    io:   { form: 'do',      sentence: 'un libro a Marco.' },
+    tu:   { form: 'dai',     sentence: 'un passaggio a Sofia?' },
+    lui:  { form: 'dà',      sentence: 'il benvenuto agli ospiti.' },
+    noi:  { form: 'diamo',   sentence: 'una mano ai vicini.' },
+    voi:  { form: 'date',    sentence: 'troppa importanza alle cose.' },
+    loro: { form: 'danno',   sentence: 'una festa domani.' },
+  },
+  dire: {
+    io:   { form: 'dico',    sentence: 'sempre la verità.' },
+    tu:   { form: 'dici',    sentence: 'sempre così?' },
+    lui:  { form: 'dice',    sentence: 'che non lo sa.' },
+    noi:  { form: 'diciamo', sentence: 'la stessa cosa.' },
+    voi:  { form: 'dite',    sentence: 'troppe bugie!' },
+    loro: { form: 'dicono',  sentence: 'che è fantastico.' },
+  },
+  rimanere: {
+    io:   { form: 'rimango',   sentence: 'a casa stasera.' },
+    tu:   { form: 'rimani',    sentence: 'ancora un po\'?' },
+    lui:  { form: 'rimane',    sentence: 'in silenzio.' },
+    noi:  { form: 'rimaniamo', sentence: 'qui fino a domani.' },
+    voi:  { form: 'rimanete',  sentence: 'in città questo weekend?' },
+    loro: { form: 'rimangono', sentence: 'sempre in ritardo.' },
+  },
+  uscire: {
+    io:   { form: 'esco',    sentence: 'con gli amici stasera.' },
+    tu:   { form: 'esci',    sentence: 'a quest\'ora?' },
+    lui:  { form: 'esce',    sentence: 'sempre tardi dall\'ufficio.' },
+    noi:  { form: 'usciamo', sentence: 'insieme venerdì sera.' },
+    voi:  { form: 'uscite',  sentence: 'spesso il weekend?' },
+    loro: { form: 'escono',  sentence: 'ogni sera.' },
+  },
+  scegliere: {
+    io:   { form: 'scelgo',    sentence: 'sempre il posto vicino al finestrino.' },
+    tu:   { form: 'scegli',    sentence: 'tu il ristorante stasera.' },
+    lui:  { form: 'sceglie',   sentence: 'sempre i vestiti con cura.' },
+    noi:  { form: 'scegliamo', sentence: 'un film da guardare insieme.' },
+    voi:  { form: 'scegliete', sentence: 'voi dove andare in vacanza.' },
+    loro: { form: 'scelgono',  sentence: 'sempre la soluzione più facile.' },
+  },
+  dovere: {
+    io:   { form: 'devo',      sentence: 'studiare stasera.' },
+    tu:   { form: 'devi',      sentence: 'finire i compiti prima.' },
+    lui:  { form: 'deve',      sentence: 'partire domani mattina.' },
+    noi:  { form: 'dobbiamo',  sentence: 'prenotare un tavolo.' },
+    voi:  { form: 'dovete',    sentence: 'arrivare in orario!' },
+    loro: { form: 'devono',    sentence: 'consegnare il progetto venerdì.' },
+  },
+  potere: {
+    io:   { form: 'posso',     sentence: 'aiutarti con piacere.' },
+    tu:   { form: 'puoi',      sentence: 'venire alla festa sabato?' },
+    lui:  { form: 'può',       sentence: 'parlare italiano molto bene.' },
+    noi:  { form: 'possiamo',  sentence: 'partire quando vuoi.' },
+    voi:  { form: 'potete',    sentence: 'scegliere qualsiasi piatto.' },
+    loro: { form: 'possono',   sentence: 'restare fino a tardi.' },
+  },
+  volere: {
+    io:   { form: 'voglio',    sentence: 'un caffè, per favore.' },
+    tu:   { form: 'vuoi',      sentence: 'venire con noi al mare?' },
+    lui:  { form: 'vuole',     sentence: 'imparare a suonare la chitarra.' },
+    noi:  { form: 'vogliamo',  sentence: 'una pizza margherita.' },
+    voi:  { form: 'volete',    sentence: 'ancora del vino?' },
+    loro: { form: 'vogliono',  sentence: 'comprare una casa in campagna.' },
+  },
+  venire: {
+    io:   { form: 'vengo',   sentence: 'subito!' },
+    tu:   { form: 'vieni',   sentence: 'alla festa stasera?' },
+    lui:  { form: 'viene',   sentence: 'da Milano.' },
+    noi:  { form: 'veniamo', sentence: 'con voi al cinema.' },
+    voi:  { form: 'venite',  sentence: 'anche voi domani?' },
+    loro: { form: 'vengono', sentence: 'da molto lontano.' },
+  },
+};
+
+const SINGULAR_P = ['io','tu','lui'];
+const PLURAL_P   = ['noi','voi','loro'];
+const ALL_P      = ['io','tu','lui','noi','voi','loro'];
+const PRONOUN_DISPLAY = { io:'Io', tu:'Tu', lui:'Lui/Lei', noi:'Noi', voi:'Voi', loro:'Loro' };
+const PRONOUN_TYPE    = { io:'singular', tu:'singular', lui:'singular', noi:'plural', voi:'plural', loro:'plural' };
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let selectedVerbs  = new Set(['essere']);
+let personFilter   = 'singular';
+let questions      = [];
+let idx = 0, score = 0, answered = false, history = [];
+
+// ── SELECTOR LOGIC ──────────────────────────────────────────────────────────
+function toggleVerb(verb) {
+  if (selectedVerbs.has(verb) && selectedVerbs.size === 1) return; // keep at least one
+  if (selectedVerbs.has(verb)) {
+    selectedVerbs.delete(verb);
+    document.getElementById(`vb-${verb}`).className = `verb-btn ${verb}`;
+    document.getElementById(`gc-${verb}`).classList.remove('active-verb');
+  } else {
+    selectedVerbs.add(verb);
+    document.getElementById(`vb-${verb}`).className = `verb-btn active ${verb}`;
+    document.getElementById(`gc-${verb}`).classList.add('active-verb');
+  }
+  updatePreview();
+}
+
+function setPersonFilter(f) {
+  personFilter = f;
+  ['singular','plural','all'].forEach(name => {
+    const btn = document.getElementById(`pb-${name}`);
+    btn.className = `person-btn${f === name ? ` active ${name}` : ''}`;
+  });
+  updatePreview();
+}
+
+function updatePreview() {
+  const pronouns = personFilter === 'singular' ? SINGULAR_P
+                 : personFilter === 'plural'   ? PLURAL_P : ALL_P;
+  const total = selectedVerbs.size * pronouns.length;
+  const verbList = [...selectedVerbs].join(', ');
+  const personDesc = personFilter === 'all' ? '6 persons' : `${pronouns.length} ${personFilter} persons`;
+  document.getElementById('q-preview').textContent =
+    `${total} question${total !== 1 ? 's' : ''} · ${verbList} · ${personDesc}`;
+}
+
+// ── BUILD + START ────────────────────────────────────────────────────────────
+function buildQuestions() {
+  const pronouns = personFilter === 'singular' ? SINGULAR_P
+                 : personFilter === 'plural'   ? PLURAL_P : ALL_P;
+  const qs = [];
+  selectedVerbs.forEach(verb => {
+    pronouns.forEach(p => {
+      qs.push({ verb, pronoun: p, form: VERBS_DATA[verb][p].form, sentence: VERBS_DATA[verb][p].sentence });
+    });
+  });
+  return shuffle(qs);
+}
+
+function startQuiz() {
+  questions = buildQuestions();
+  idx = 0; score = 0; answered = false; history = [];
+  document.getElementById('selector-panel').style.display = 'none';
+  document.getElementById('quiz-area').style.display = 'block';
+  document.getElementById('results').style.display = 'none';
+  render();
+}
+
+function restartSame() {
+  questions = buildQuestions();
+  idx = 0; score = 0; answered = false; history = [];
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('quiz-area').style.display = 'block';
+  render();
+}
+
+function goBack() {
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('selector-panel').style.display = 'block';
+  document.getElementById('progress-fill').style.width = '0%';
+  updatePreview();
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  const q = questions[idx];
+  answered = false;
+
+  document.getElementById('q-counter').textContent = `Question ${idx + 1} of ${questions.length}`;
+  document.getElementById('progress-fill').style.width = `${(idx / questions.length) * 100}%`;
+
+  const vt = document.getElementById('verb-tag');
+  vt.textContent = q.verb;
+  vt.className = `verb-tag ${q.verb}`;
+
+  const pb = document.getElementById('person-badge');
+  const ptype = PRONOUN_TYPE[q.pronoun];
+  pb.textContent = ptype;
+  pb.className = `person-badge ${ptype}`;
+
+  document.getElementById('sentence-display').innerHTML =
+    `<span class="pronoun-badge ${q.pronoun}">${PRONOUN_DISPLAY[q.pronoun]}</span> ______ ${q.sentence}`;
+
+  document.getElementById('q-card').className = 'q-card';
+
+  const input = document.getElementById('verb-input');
+  input.value = '';
+  input.className = 'verb-input';
+  input.disabled = false;
+
+
+  document.getElementById('feedback').className = 'feedback-text';
+  document.getElementById('feedback').innerHTML = '';
+  document.getElementById('check-btn').disabled = false;
+  document.getElementById('next-btn').className = 'next-btn';
+}
+
+// ── ANSWER ───────────────────────────────────────────────────────────────────
+function handleKey(e) {
+  if (e.key === 'Enter') {
+    if (!answered) checkAnswer();
+    else nextQuestion();
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && answered) nextQuestion();
+});
+
+function checkAnswer() {
+  if (answered) return;
+  answered = true;
+  const q = questions[idx];
+  const input = document.getElementById('verb-input');
+  const userVal = input.value.trim().toLowerCase();
+  const correct = userVal === q.form.toLowerCase();
+
+  input.disabled = true;
+  input.blur(); // dismiss iPad keyboard so Next button is visible
+  document.getElementById('check-btn').disabled = true;
+
+  const card = document.getElementById('q-card');
+  const fb = document.getElementById('feedback');
+
+  if (correct) {
+    score++;
+    input.classList.add('correct');
+    card.classList.add('correct');
+  } else {
+    input.classList.add('wrong');
+    card.classList.add('wrong');
+    fb.innerHTML = `✗ Correct answer: <strong>${q.form}</strong>`;
+    fb.className = 'feedback-text show wrong-fb';
+  }
+
+  history.push({ q, userVal, correct });
+  document.getElementById('next-btn').className = 'next-btn show';
+}
+
+function nextQuestion() {
+  idx++;
+  if (idx >= questions.length) showResults();
+  else render();
+}
+
+// ── RESULTS ──────────────────────────────────────────────────────────────────
+function showResults() {
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('progress-fill').style.width = '100%';
+
+  const total = questions.length;
+  const pct = Math.round((score / total) * 100);
+  document.getElementById('results-score').innerHTML = `${score}<span>/${total}</span>`;
+
+  let msg;
+  if (pct === 100)     msg = 'Perfetto! Flawless!';
+  else if (pct >= 85)  msg = 'Ottimo lavoro!';
+  else if (pct >= 70)  msg = 'Molto bene — keep drilling!';
+  else                 msg = 'Continua così — these take time!';
+  document.getElementById('results-msg').textContent = msg;
+
+  const wrongs = history.filter(h => !h.correct);
+  const rs = document.getElementById('review-section');
+
+  if (wrongs.length === 0) {
+    rs.innerHTML = '<p style="color:var(--correct);font-family:\'Crimson Pro\',serif;font-size:1.1rem;margin-top:1rem;">No mistakes — perfetto!</p>';
+    return;
+  }
+
+  rs.innerHTML = `<div class="review-title">Where you slipped (${wrongs.length})</div>`;
+  wrongs.forEach(h => {
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    item.innerHTML = `
+      <span>✗</span>
+      <div class="review-text">
+        ${PRONOUN_DISPLAY[h.q.pronoun]} <em>${h.q.form}</em> ${h.q.sentence}
+        <br><span style="font-size:0.8rem;color:#999;">You wrote: <s>${h.userVal || '(blank)'}</s> · ${h.q.verb}</span>
+      </div>`;
+    rs.appendChild(item);
+  });
+}
+
+// ── GUIDE TOGGLE ─────────────────────────────────────────────────────────────
+function toggleGuide() {
+  const grid = document.getElementById('guide-grid');
+  const btn  = document.getElementById('toggle-guide');
+  const hidden = grid.style.display === 'none';
+  grid.style.display = hidden ? 'grid' : 'none';
+  btn.textContent = hidden ? 'Hide' : 'Show';
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+updatePreview();
+</script>
+</body>
+</html>
